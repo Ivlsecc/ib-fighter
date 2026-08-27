@@ -1,0 +1,101 @@
+{
+  "firewall": {
+    "id": "firewall",
+    "name": "FIREWALL",
+    "shortName": "Firewall",
+    "plainDesc": "Не пускает чужаков в твою сеть",
+    "cat": "network",
+    "maxUses": 2,
+    "hardCounterFor": ["worm_bruteforce", "worm_spread", "worm_botnet", "worm_ddos", "trojan_backdoor"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "waf": {
+    "id": "waf",
+    "name": "WAF",
+    "shortName": "WAF",
+    "plainDesc": "Проверяет запросы к сайту, отсекает вредоносные",
+    "cat": "web",
+    "maxUses": 2,
+    "hardCounterFor": ["phish_xss", "phish_csrf"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "param_queries": {
+    "id": "param_queries",
+    "name": "ПАРАМЕТРИЗАЦИЯ ЗАПРОСОВ",
+    "shortName": "SQL-фильтр",
+    "plainDesc": "Не даёт подставить вредоносный код в запрос к базе",
+    "cat": "web",
+    "maxUses": 2,
+    "hardCounterFor": ["zero_privesc"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "edr": {
+    "id": "edr",
+    "name": "EDR",
+    "shortName": "EDR",
+    "plainDesc": "Следит за подозрительным поведением программ",
+    "cat": "malware",
+    "maxUses": 2,
+    "hardCounterFor": ["malware_persist", "malware_keylogger", "malware_exfil", "trojan_disable", "trojan_takeover", "zero_persist"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "antivirus": {
+    "id": "antivirus",
+    "name": "АНТИВИРУС",
+    "shortName": "Антивирус",
+    "plainDesc": "Находит и удаляет известные вирусы",
+    "cat": "malware",
+    "maxUses": 2,
+    "hardCounterFor": ["malware_dropper", "malware_spread", "malware_ransom", "trojan_run", "trojan_takeover"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "httponly_cookies": {
+    "id": "httponly_cookies",
+    "name": "HTTPONLY / SECURE COOKIES",
+    "shortName": "Cookie-защита",
+    "plainDesc": "Не даёт угнать твою сессию входа",
+    "cat": "social",
+    "maxUses": 2,
+    "hardCounterFor": ["phish_cookie", "phish_takeover"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "mfa": {
+    "id": "mfa",
+    "name": "MFA / 2FA",
+    "shortName": "2FA",
+    "plainDesc": "Код из телефона — даже зная пароль, не войдут",
+    "cat": "social",
+    "maxUses": 2,
+    "hardCounterFor": ["phish_fakepage", "phish_takeover", "trojan_exfil"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
+    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+  },
+  "ids": {
+    "id": "ids",
+    "name": "IDS",
+    "shortName": "IDS",
+    "plainDesc": "Замечает подозрительное, но не блокирует само",
+    "cat": "universal",
+    "maxUses": 3,
+    "hardCounterFor": [],
+    "blockPercent": { "hard": 100, "normal": 55, "weak": 35 },
+    "counterDamage": { "hard": 22, "normal": 13, "weak": 6 }
+  },
+  "patch": {
+    "id": "patch",
+    "name": "ПАТЧ / ОБНОВЛЕНИЕ",
+    "shortName": "Патч",
+    "plainDesc": "Закрывает конкретную дыру в программе",
+    "cat": "zeroday",
+    "maxUses": 1,
+    "hardCounterFor": ["zero_probe", "zero_bypass", "zero_rce"],
+    "blockPercent": { "hard": 100, "normal": 65, "weak": 30 },
+    "counterDamage": { "hard": 26, "normal": 14, "weak": 6 }
+  }
+}

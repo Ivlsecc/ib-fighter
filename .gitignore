@@ -1,0 +1,10 @@
+# Boxer sprite pack (13 MB) — was the basis for an abandoned player design.
+# The player is now drawn from scratch by assets/sprites/generate_player_pixel.py,
+# so nothing in the project reads this any more. Kept on disk, out of the repo.
+assets/sprites/player/
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp

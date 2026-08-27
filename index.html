@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Local static stand: the browser otherwise serves a stale core.js/ui.js after
+     an edit and the page silently runs old code. Fonts and sprites are still
+     cached normally by the browser's own heuristics. -->
+<meta http-equiv="Cache-Control" content="no-store">
+<title>ОБЫЧНЫЙ ДЕНЬ ИБШНИКА</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="src/style.css?v=9">
+</head>
+<body>
+<div id="app">
+
+  <div id="menuScreen">
+    <canvas id="menuBgCanvas"></canvas>
+    <div id="menuContent">
+      <div id="menuTitle">ОБЫЧНЫЙ ДЕНЬ ИБШНИКА</div>
+      <div id="menuSubtitle">Выбери противника</div>
+      <div id="bossGrid"></div>
+      <button id="randomBossBtn">СЛУЧАЙНЫЙ БОСС</button>
+      <div id="menuOptions">
+        <button id="themeToggle" role="switch" aria-checked="false">
+          <span class="switch-track"><span class="switch-knob"></span></span>
+          <span id="themeLabel">Тёмная тема</span>
+        </button>
+        <button id="fullscreenBtn">⛶ ПОЛНЫЙ ЭКРАН</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cutscene" class="hidden">
+    <div id="cutsceneText"></div>
+    <div id="cutsceneHint">нажми, чтобы продолжить</div>
+  </div>
+
+  <div id="battleScreen" class="hidden">
+
+  <div id="legend">
+    <div class="legend-item" data-cat="network"><span class="dot"></span>сеть — Firewall</div>
+    <div class="legend-item" data-cat="malware"><span class="dot"></span>вредонос — EDR, Антивирус</div>
+    <div class="legend-item" data-cat="web"><span class="dot"></span>веб/сайт — WAF, SQL-фильтр</div>
+    <div class="legend-item" data-cat="social"><span class="dot"></span>обман — 2FA, Cookie-защита</div>
+    <div class="legend-item" data-cat="zeroday"><span class="dot"></span>0-day — Патч</div>
+  </div>
+
+  <div id="hud">
+    <div class="bar-wrap">
+      <div class="bar-label"><span>СПЕЦ ИБ</span><span id="playerHpText">100/100</span></div>
+      <div class="bar"><div class="bar-fill player" id="playerBarFill"></div></div>
+    </div>
+    <div id="turnColumn">
+      <div id="turnCounter">ХОД 1</div>
+      <button id="pauseBtn">❚❚ ПАУЗА</button>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label"><span id="bossName">БОСС</span><span id="bossHpText">90/90</span></div>
+      <div class="bar"><div class="bar-fill boss" id="bossBarFill"></div></div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <canvas id="bgCanvas"></canvas>
+    <div id="arena">
+      <div class="fighter-slot">
+        <img id="playerSprite" class="fighter player-fighter" src="assets/img/player/idle.png" alt="">
+        <img id="heldItem" class="hidden" src="" alt="">
+      </div>
+      <img id="bossSprite" class="fighter boss-fighter" src="assets/img/worm/idle.png" alt="">
+    </div>
+    <div id="attackBanner" class="hidden">
+      <div id="attackIcon">⚔</div>
+      <div id="attackName">—</div>
+      <div id="attackTech">—</div>
+      <div id="attackCat">—</div>
+    </div>
+    <img id="projectile" class="hidden" src="" alt="">
+    <div id="burst" class="hidden"></div>
+    <div id="resultWindow" class="hidden">
+      <div id="resultTier">—</div>
+      <div id="resultDamage">—</div>
+      <div id="resultNote">—</div>
+      <button id="resultNextBtn">ДАЛЕЕ →</button>
+    </div>
+    <div id="resolveFlash" class="hidden"></div>
+  </div>
+
+  <div id="inventoryPanel" class="hidden">
+    <div id="itemGrid"></div>
+    <div id="selectedRow">
+      <span id="selectedItemName">выбери, чем защититься</span>
+    </div>
+    <div id="actionRow">
+      <button id="useBtn" class="action-btn action-primary" disabled>
+        <img id="useIcon" class="hidden" src="" alt="">
+        <span>ИСПОЛЬЗОВАТЬ</span>
+      </button>
+      <button class="action-btn fallback-btn" data-fallback="reboot">
+        <img src="assets/img/items/reboot.png" alt="">
+        <span>ПЕРЕЗАГРУЗИТЬ</span>
+      </button>
+      <button class="action-btn fallback-btn" data-fallback="avast">
+        <img src="assets/img/items/avast.png" alt="">
+        <span>AVAST АНТИВИРУС</span>
+      </button>
+    </div>
+    <button id="hintBtn">💡 ПОДСКАЗКА — ЧТО ТУТ ПОМОЖЕТ?</button>
+  </div>
+
+  <div id="hintOverlay" class="hidden">
+    <div id="hintBox">
+      <div id="hintTitle">ПОДСКАЗКА</div>
+      <div id="hintAttack">—</div>
+      <div id="hintPick">
+        <img id="hintIcon" src="" alt="">
+        <div id="hintPickName">—</div>
+      </div>
+      <div id="hintWhy">—</div>
+      <button id="hintNextBtn" class="action-btn action-primary">ДАЛЕЕ →</button>
+    </div>
+  </div>
+
+  <div id="pauseOverlay" class="hidden">
+    <div id="pauseBox">
+      <div id="pauseTitle">ПАУЗА</div>
+      <div id="pauseButtons">
+        <button id="resumeBtn" class="action-btn action-primary">ПРОДОЛЖИТЬ</button>
+        <button id="quitBtn" class="action-btn">ВЫЙТИ В МЕНЮ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="endScreen" class="hidden">
+    <div id="endTitle">—</div>
+    <div id="endText">—</div>
+    <div id="endPitch">—</div>
+    <button id="restartBtn">В МЕНЮ</button>
+  </div>
+
+  </div>
+
+</div>
+
+<script src="src/core.js?v=9"></script>
+<script src="src/background.js?v=9"></script>
+<script src="src/audio.js?v=9"></script>
+<script src="src/ui.js?v=9"></script>
+</body>
+</html>

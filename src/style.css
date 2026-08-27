@@ -1,0 +1,912 @@
+/* Light is the default; [data-theme="dark"] on <html> swaps the whole palette.
+   Every colour the UI paints lives here so the toggle needs no other edits. */
+:root {
+  --bg: #eef1fa;
+  --bg-panel: #ffffff;
+  --border: #b6c0e0;
+  --track: #dde3f6;
+  --text: #161a33;
+  --text-dim: #545b7f;
+  --cyan: #0e7490;
+  --magenta: #b3157a;
+  --gold: #a8730a;
+
+  --cat-network: #1d4ed8;
+  --cat-malware: #7e22ce;
+  --cat-web: #15803d;
+  --cat-social: #c2410c;
+  --cat-zeroday: #dc2626;
+
+  /* canvas backdrop — read by background.js, not by CSS */
+  --sky: #dbe4f7;
+  --skyline: #232c4d;
+
+  /* floating panels */
+  --panel-float: rgba(255, 255, 255, 0.92);
+  --panel-float-strong: rgba(255, 255, 255, 0.97);
+  --overlay-bg: rgba(238, 241, 250, 0.97);
+  --cutscene-bg: #e4e9f7;
+
+  /* inventory sockets */
+  --slot-frame: #cfd5e6;
+  --slot-frame-hi: #ffffff;
+  --slot-frame-lo: #949cb5;
+  --slot-edge: #6f7794;
+  --slot-well: #a7afc6;
+  --slot-well-hi: #e9edf8;
+  --slot-well-lo: #737b98;
+  --slot-hover: #b9c1d6;
+  --slot-selected: #e3d3a4;
+  --slot-selected-hi: #fff6dd;
+  --slot-selected-lo: #a8925c;
+  --count-fg: #ffffff;
+  --count-outline: #161a33;
+
+  /* big action buttons */
+  --btn-top: #fdfdff;
+  --btn-bottom: #dfe4f2;
+  --btn-hover-top: #ffffff;
+  --btn-hover-bottom: #f3e2ee;
+  --btn-primary-top: #e6fbff;
+  --btn-primary-bottom: #b9ecf6;
+  --btn-primary-hover-top: #f2feff;
+  --btn-primary-hover-bottom: #a5e6f3;
+  --btn-off-bg: #e7eaf2;
+  --btn-off-fg: #9aa1b8;
+  --btn-off-border: #b9c0d4;
+}
+
+[data-theme="dark"] {
+  --bg: #0d1020;
+  --bg-panel: #161b2d;
+  --border: #333b5e;
+  --track: #232a44;
+  --text: #e6eaf7;
+  --text-dim: #98a2c4;
+  --cyan: #38bdf8;
+  --magenta: #f472b6;
+  --gold: #fbbf24;
+
+  --cat-network: #60a5fa;
+  --cat-malware: #c084fc;
+  --cat-web: #4ade80;
+  --cat-social: #fb923c;
+  --cat-zeroday: #f87171;
+
+  --sky: #101736;
+  --skyline: #05070f;
+
+  --panel-float: rgba(22, 27, 45, 0.94);
+  --panel-float-strong: rgba(22, 27, 45, 0.98);
+  --overlay-bg: rgba(13, 16, 32, 0.97);
+  --cutscene-bg: #0b0e1c;
+
+  --slot-frame: #2b3253;
+  --slot-frame-hi: #414a75;
+  --slot-frame-lo: #161b2e;
+  --slot-edge: #0a0d1a;
+  --slot-well: #1c2238;
+  --slot-well-hi: #333c5e;
+  --slot-well-lo: #0c0f1e;
+  --slot-hover: #283052;
+  --slot-selected: #4a3f22;
+  --slot-selected-hi: #6f6034;
+  --slot-selected-lo: #241d0e;
+  --count-fg: #ffffff;
+  --count-outline: #05070f;
+
+  --btn-top: #262e4d;
+  --btn-bottom: #1a1f36;
+  --btn-hover-top: #32284a;
+  --btn-hover-bottom: #241b34;
+  --btn-primary-top: #114155;
+  --btn-primary-bottom: #0b2c3d;
+  --btn-primary-hover-top: #175a75;
+  --btn-primary-hover-bottom: #0e3a4f;
+  --btn-off-bg: #191e31;
+  --btn-off-fg: #59618a;
+  --btn-off-border: #2b3253;
+}
+
+* { box-sizing: border-box; }
+
+.hidden { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Martian Mono", "Consolas", monospace;
+  font-size: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 96%;
+  max-width: 1760px;
+  padding: 16px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* --- menu --- */
+#menuScreen.hidden { display: none; }
+#menuScreen {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+#menuBgCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+#menuContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: clamp(40px, 10vh, 100px) 20px;
+  text-align: center;
+  min-height: 100vh;
+  justify-content: center;
+}
+#menuTitle {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(26px, 3.4vw, 44px);
+  color: var(--gold);
+}
+#menuSubtitle { color: var(--text-dim); font-size: 18px; }
+#bossGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 760px;
+}
+.boss-card {
+  font-family: inherit;
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 16px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.boss-card:hover { border-color: var(--cyan); }
+.boss-card .boss-card-name { font-size: 20px; color: var(--gold); }
+.boss-card .boss-card-type { font-size: 14px; color: var(--text-dim); }
+.boss-card .boss-card-diff { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+#fullscreenBtn {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+#fullscreenBtn:hover { border-color: var(--cyan); }
+
+/* --- theme switch + fullscreen ---
+   Both sit over the animated skyline, so they get a solid fill and a real
+   border: transparent chips disappear against the moving background. */
+#menuOptions {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 26px;
+}
+#menuOptions > button {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+}
+#themeToggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 9px 14px 9px 10px;
+  cursor: pointer;
+}
+#themeToggle:hover { border-color: var(--cyan); }
+.switch-track {
+  width: 38px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--track);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
+  transition: background 0.18s ease;
+}
+.switch-knob {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+#themeToggle[aria-checked="true"] .switch-track { background: var(--cyan); }
+#themeToggle[aria-checked="true"] .switch-knob { transform: translateX(18px); background: var(--bg-panel); }
+#randomBossBtn {
+  font-family: inherit;
+  font-size: 16px;
+  background: var(--magenta);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#battleScreen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* --- pause: button under the turn counter, and the box it opens --- */
+#turnColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+#pauseBtn {
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 1px;
+  background: var(--bg-panel);
+  color: var(--text-dim);
+  border: 2px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#pauseBtn:hover { border-color: var(--cyan); color: var(--text); }
+
+#pauseOverlay.hidden { display: none; }
+#pauseOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#pauseBox {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+  padding: 26px 30px;
+  text-align: center;
+  min-width: min(440px, 88vw);
+}
+#pauseTitle {
+  font-family: "Press Start 2P", "Consolas", monospace;
+  font-size: 20px;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+#pauseButtons { display: flex; flex-direction: column; gap: 12px; }
+#pauseButtons .action-btn { min-height: 66px; }
+
+/* --- legend --- */
+#legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.legend-item[data-cat="network"] .dot { background: var(--cat-network); }
+.legend-item[data-cat="malware"] .dot { background: var(--cat-malware); }
+.legend-item[data-cat="web"] .dot { background: var(--cat-web); }
+.legend-item[data-cat="social"] .dot { background: var(--cat-social); }
+.legend-item[data-cat="zeroday"] .dot { background: var(--cat-zeroday); }
+
+/* --- HUD --- */
+#hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.bar-wrap { display: flex; flex-direction: column; gap: 3px; }
+.bar-label { display: flex; justify-content: space-between; font-size: 16px; color: var(--text-dim); }
+.bar { height: 16px; background: var(--track); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; transition: width 0.35s ease; }
+.bar-fill.player { background: var(--cyan); }
+.bar-fill.boss { background: var(--magenta); }
+#turnCounter { font-size: 16px; color: var(--gold); white-space: nowrap; }
+
+/* --- stage --- */
+#stage {
+  min-height: clamp(260px, 46vh, 560px);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 10px;
+  text-align: center;
+  overflow: hidden;
+}
+#stage.shake { animation: shake 0.35s ease; }
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-6px, 2px); }
+  40% { transform: translate(5px, -3px); }
+  60% { transform: translate(-4px, 3px); }
+  80% { transform: translate(3px, -2px); }
+}
+
+#bgCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+#arena {
+  position: relative;
+  width: 100%;
+  height: clamp(220px, 40vh, 480px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 8%;
+  z-index: 1;
+  pointer-events: none;
+}
+.fighter {
+  height: clamp(190px, 34vh, 400px);
+  width: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.5));
+  transition: transform 0.15s ease;
+}
+
+/* wrapper so the held item can be positioned against the player sprite */
+.fighter-slot { position: relative; display: flex; align-items: flex-end; }
+#heldItem.hidden { display: none; }
+#heldItem {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  width: clamp(76px, 14vh, 150px);
+  height: auto;
+  transform: translateX(-50%);
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.45));
+  animation: heldPop 0.28s ease-out;
+  z-index: 2;
+}
+@keyframes heldPop {
+  0% { transform: translateX(-50%) translateY(10px) scale(0.7); opacity: 0; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+/* The player art is a front-facing portrait, so it is not mirrored — its
+   poses already lean toward the boss on the right. */
+.player-fighter { animation: idleBob 2.4s ease-in-out infinite; }
+.boss-fighter { animation: idleBob 2.4s ease-in-out infinite 0.3s; }
+@keyframes idleBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Player state moves are animations, not static transforms: idleBob owns the
+   transform property, so a plain `transform:` rule would never show. */
+@keyframes playerLunge {
+  0% { transform: translateX(0) scale(1); }
+  35% { transform: translateX(20px) scale(1.06); }
+  100% { transform: translateX(0) scale(1); }
+}
+.player-fighter.attacking { animation: playerLunge 0.5s ease-out; }
+
+@keyframes playerRecoil {
+  0% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-14px) rotate(-3deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+.player-fighter.hit { animation: playerRecoil 0.45s ease-out; }
+
+@keyframes playerDrop {
+  0% { transform: translateY(-14px); opacity: 0.85; }
+  70% { transform: translateY(2px); }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.player-fighter.knocked-out { animation: playerDrop 0.55s ease-out forwards; }
+.boss-fighter.glitching {
+  animation: idleBob 2.4s ease-in-out infinite 0.3s, rgbGlitch 0.35s infinite;
+}
+@keyframes rgbGlitch {
+  0%, 100% { filter: drop-shadow(0 6px 4px rgba(0,0,0,0.5)); }
+  20% { filter: drop-shadow(-2px 0 0 #ef4444) drop-shadow(2px 0 0 #22d3ee); }
+  40% { filter: drop-shadow(2px 1px 0 #ef4444) drop-shadow(-2px -1px 0 #22d3ee); }
+  60% { filter: drop-shadow(-1px -2px 0 #ef4444) drop-shadow(1px 2px 0 #22d3ee); }
+}
+.fighter.attacking { transform: scale(1.08); }
+.fighter.hit { transform: translateX(6px); }
+
+#attackBanner.hidden, #resolveFlash.hidden { display: none; }
+#attackBanner {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, 0);
+  z-index: 2;
+  background: var(--panel-float);
+  border: 1px solid var(--border);
+  box-shadow: 0 3px 12px rgba(22, 26, 51, 0.15);
+  border-radius: 6px;
+  padding: 6px 14px;
+}
+#attackIcon { font-size: 42px; line-height: 1; }
+#attackName {
+  font-family: "Press Start 2P", "Consolas", monospace;
+  font-size: 16px;
+  margin-top: 8px;
+  line-height: 1.5;
+  max-width: 480px;
+}
+#attackTech {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+#attackCat {
+  margin-top: 6px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 2px 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.cat-network { background: color-mix(in srgb, var(--cat-network) 25%, transparent); color: var(--cat-network); }
+.cat-malware { background: color-mix(in srgb, var(--cat-malware) 25%, transparent); color: var(--cat-malware); }
+.cat-web { background: color-mix(in srgb, var(--cat-web) 25%, transparent); color: var(--cat-web); }
+.cat-social { background: color-mix(in srgb, var(--cat-social) 25%, transparent); color: var(--cat-social); }
+.cat-zeroday { background: color-mix(in srgb, var(--cat-zeroday) 25%, transparent); color: var(--cat-zeroday); animation: glitch 0.4s infinite; }
+@keyframes glitch {
+  0%, 100% { transform: translate(0,0); }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+}
+
+/* --- thrown item, the burst it makes, and the window that opens out of it --- */
+#projectile.hidden, #burst.hidden, #resultWindow.hidden { display: none; }
+#projectile {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 52px;
+  height: 52px;
+  /* translate() moves the top-left corner, so pull the icon back by half its
+     size and the animated point becomes its centre */
+  margin: -26px 0 0 -26px;
+  image-rendering: pixelated;
+  z-index: 3;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.45));
+}
+#burst {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  margin: -65px 0 0 -65px;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(circle, #ffffff 0%, #ffd24a 34%, #e2483a 58%, rgba(226, 72, 58, 0) 72%);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: burstPop 0.45s ease-out;
+}
+@keyframes burstPop {
+  0% { transform: scale(0.15) rotate(0deg); opacity: 1; }
+  55% { transform: scale(1.15) rotate(22deg); opacity: 1; }
+  100% { transform: scale(1.55) rotate(38deg); opacity: 0; }
+}
+
+#resultWindow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  width: min(620px, 88%);
+  background: var(--panel-float-strong);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(22, 26, 51, 0.22);
+  padding: 14px 20px 16px;
+  text-align: center;
+  animation: resultOpen 0.28s cubic-bezier(0.2, 1.4, 0.5, 1);
+}
+@keyframes resultOpen {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+#resultTier {
+  font-family: "Press Start 2P", "Consolas", monospace;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+#resultTier.tier-good { color: var(--cyan); }
+#resultTier.tier-mixed { color: var(--gold); }
+#resultTier.tier-bad { color: var(--magenta); }
+#resultDamage { margin-top: 8px; font-size: 15px; color: var(--text-dim); }
+#resultNote {
+  margin-top: 10px;
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--text);
+}
+/* the only way out of the window — nothing dismisses it on a timer, so a
+   first-year can read the explanation at their own pace */
+#resultNextBtn {
+  margin-top: 14px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--text);
+  background: linear-gradient(var(--btn-primary-top), var(--btn-primary-bottom));
+  border: 3px solid var(--cyan);
+  border-radius: 8px;
+  padding: 10px 34px;
+  cursor: pointer;
+}
+#resultNextBtn:hover { background: linear-gradient(var(--btn-primary-hover-top), var(--btn-primary-hover-bottom)); }
+#resultNextBtn:active { transform: translateY(2px); }
+
+#resolveFlash {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+}
+#resolveFlash.flash-boss { background: var(--cyan); animation: flashOnce 0.4s ease; }
+#resolveFlash.flash-player { background: var(--magenta); animation: flashOnce 0.4s ease; }
+@keyframes flashOnce { 0% { opacity: 0.55; } 100% { opacity: 0; } }
+
+/* --- inventory: one panel holding the slots, the fallbacks and the throw
+   button, sitting directly under the HP bars --- */
+#inventoryPanel.hidden { display: none; }
+/* The panel stays on screen for the whole fight so the inventory never blinks
+   out mid-turn; between turns it is only locked, not removed. */
+#inventoryPanel.locked {
+  opacity: 0.55;
+  pointer-events: none;
+}
+#inventoryPanel {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Nine sockets on one row, always. Letting them wrap turns the bar into a
+   ragged 8+1 block, which is exactly the "no clear grid" problem.
+   The grid itself is a raised panel and the sockets are sunk into it — the
+   Minecraft read comes from that inversion, not from the slot borders. */
+#itemGrid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 5px;
+  padding: 6px;
+  max-width: 720px;
+  background: var(--slot-frame);
+  border-radius: 3px;
+  box-shadow:
+    inset 3px 3px 0 var(--slot-frame-hi),
+    inset -3px -3px 0 var(--slot-frame-lo),
+    0 0 0 2px var(--slot-edge);
+}
+#itemGrid .slot { width: 100%; height: auto; aspect-ratio: 1; }
+
+/* sunk socket: dark bevel top-left, light bevel bottom-right */
+.slot {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--slot-well);
+  box-shadow:
+    inset 3px 3px 0 var(--slot-well-lo),
+    inset -3px -3px 0 var(--slot-well-hi);
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.slot img {
+  width: 46px;
+  height: 46px;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+/* category tab across the top of the socket, matching the legend dots */
+.slot::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--slot-cat, transparent);
+}
+.slot.cat-network { --slot-cat: var(--cat-network); }
+.slot.cat-malware { --slot-cat: var(--cat-malware); }
+.slot.cat-web { --slot-cat: var(--cat-web); }
+.slot.cat-social { --slot-cat: var(--cat-social); }
+.slot.cat-zeroday { --slot-cat: var(--cat-zeroday); }
+.slot.cat-universal { --slot-cat: var(--text-dim); }
+
+.slot .item-uses {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--count-fg);
+  text-shadow: 1px 1px 0 var(--count-outline), -1px 1px 0 var(--count-outline), 1px -1px 0 var(--count-outline), -1px -1px 0 var(--count-outline);
+  pointer-events: none;
+}
+.slot .slot-tag {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+.fallback-slot img { width: 38px; height: 38px; margin-bottom: 8px; }
+
+.slot:hover:not(:disabled) { background: var(--slot-hover); }
+.slot:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
+.slot.selected {
+  background: var(--slot-selected);
+  box-shadow:
+    inset 3px 3px 0 var(--slot-selected-lo),
+    inset -3px -3px 0 var(--slot-selected-hi),
+    0 0 0 3px var(--gold);
+}
+.slot.focused { outline: 2px dashed var(--cyan); outline-offset: -1px; }
+
+#selectedRow {
+  display: flex;
+  align-items: center;
+  min-height: 26px;
+}
+#selectedItemName { color: var(--text-dim); font-size: 15px; }
+
+/* --- the three actions share one row and one shape; only the accent tells
+   the primary "use" apart from the two fallbacks --- */
+#actionRow {
+  display: flex;
+  gap: 12px;
+  border-top: 2px dashed var(--border);
+  padding-top: 10px;
+}
+.action-btn {
+  flex: 1 1 0;
+  /* without this the icon + label sets a min-content floor that flex will
+     not shrink past, and the row pushes a horizontal scrollbar onto the page */
+  min-width: 0;
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: clamp(14px, 1.5vw, 19px);
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--text);
+  background: linear-gradient(var(--btn-top), var(--btn-bottom));
+  border: 3px solid var(--text-dim);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.action-btn span { text-align: center; line-height: 1.25; }
+.action-btn img {
+  width: clamp(30px, 3.4vw, 46px);
+  height: clamp(30px, 3.4vw, 46px);
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.action-btn img.hidden { display: none; }
+.action-btn:hover:not(:disabled) {
+  border-color: var(--magenta);
+  background: linear-gradient(var(--btn-hover-top), var(--btn-hover-bottom));
+}
+.action-btn:active:not(:disabled) { transform: translateY(2px); }
+
+/* primary action lights up only once something is actually selected */
+.action-primary:not(:disabled) {
+  border-color: var(--cyan);
+  background: linear-gradient(var(--btn-primary-top), var(--btn-primary-bottom));
+}
+.action-primary:not(:disabled):hover {
+  border-color: var(--cyan);
+  background: linear-gradient(var(--btn-primary-hover-top), var(--btn-primary-hover-bottom));
+}
+.action-btn:disabled {
+  cursor: not-allowed;
+  color: var(--btn-off-fg);
+  border-color: var(--btn-off-border);
+  background: var(--btn-off-bg);
+}
+
+/* --- hint: one wide button under the actions, and the box it opens --- */
+#hintBtn {
+  width: 100%;
+  min-height: 52px;
+  font-family: inherit;
+  font-size: clamp(13px, 1.3vw, 16px);
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--text);
+  background: var(--bg-panel);
+  border: 2px dashed var(--gold);
+  border-radius: 8px;
+  cursor: pointer;
+}
+#hintBtn:hover { background: var(--btn-hover-top); border-style: solid; }
+#hintBtn:active { transform: translateY(2px); }
+
+#hintOverlay.hidden { display: none; }
+#hintOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#hintBox {
+  background: var(--bg-panel);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  padding: 24px 28px;
+  text-align: center;
+  max-width: min(620px, 92vw);
+}
+#hintTitle {
+  font-family: "Press Start 2P", "Consolas", monospace;
+  font-size: 17px;
+  color: var(--gold);
+}
+#hintAttack { margin-top: 14px; font-size: 16px; color: var(--text-dim); }
+#hintPick {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#hintIcon { width: 64px; height: 64px; image-rendering: pixelated; }
+#hintPickName { font-size: 22px; font-weight: bold; color: var(--text); }
+#hintWhy { margin-top: 14px; font-size: 17px; line-height: 1.45; }
+#hintNextBtn { margin-top: 20px; width: 100%; }
+
+/* the recommended socket, once the hint box is dismissed. Cyan and pulsing so
+   it never reads as the gold "selected" state. */
+.slot.hinted, .action-btn.hinted {
+  animation: hintPulse 1.1s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--cyan); }
+  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--cyan) 35%, transparent); }
+}
+#restartBtn {
+  font-family: inherit;
+  font-size: 15px;
+  background: var(--cyan);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* --- end screen --- */
+#endScreen.hidden { display: none; }
+#endScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+  z-index: 10;
+}
+#endTitle { font-family: "Press Start 2P", monospace; font-size: 22px; color: var(--gold); }
+#endText { max-width: 560px; font-size: 18px; }
+#endPitch { max-width: 560px; font-size: 15px; color: var(--text-dim); }
+
+/* --- cutscene --- */
+#cutscene.hidden { display: none; }
+#cutscene {
+  position: fixed;
+  inset: 0;
+  background: var(--cutscene-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  text-align: center;
+  padding: 40px;
+  z-index: 20;
+  cursor: pointer;
+}
+#cutsceneText {
+  max-width: 780px;
+  font-size: clamp(20px, 2.6vw, 32px);
+  line-height: 1.5;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#cutsceneText.visible { opacity: 1; }
+#cutsceneHint {
+  font-size: 14px;
+  color: var(--text-dim);
+  opacity: 0.7;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
