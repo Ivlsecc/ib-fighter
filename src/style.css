@@ -200,6 +200,26 @@ body {
 }
 #fullscreenBtn:hover { border-color: var(--cyan); }
 
+/* --- gamepad --- */
+#gamepadBadge {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 14px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+}
+/* Highlight for whatever the stick is pointing at. Distinct from the item
+   grid's own .focused/.selected so a slot can show both at once. */
+.gp-focus {
+  outline: 4px solid var(--gold) !important;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.gp-focus:focus { outline: 4px solid var(--gold) !important; }
+
 /* --- theme switch + fullscreen ---
    Both sit over the animated skyline, so they get a solid fill and a real
    border: transparent chips disappear against the moving background. */

@@ -545,7 +545,11 @@
         ],
         { duration: 460, easing: "cubic-bezier(.35,.1,.6,1)" }
       );
-      await flight.finished;
+      // Never await the animation alone: `finished` does not resolve while the
+      // tab is not rendering (backgrounded, screen asleep), and the whole turn
+      // would hang there. The timeout is the animation's own duration plus a
+      // margin, so in normal play the promise always wins.
+      await Promise.race([flight.finished.catch(() => {}), delay(700)]);
       dom.projectile.classList.add("hidden");
       return to;
     }
@@ -705,6 +709,7 @@
     });
 
     initTheme();
+    IBFighterGamepad.init();
     buildMenu();
     showMenu();
   }
