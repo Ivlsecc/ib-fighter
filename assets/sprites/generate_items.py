@@ -255,6 +255,53 @@ def icon_patch():
     return p.im
 
 
+def icon_backup():
+    """Stack of drives with a green tick badge -- the copy exists and is good.
+
+    A restore arrow was the first idea and it did not survive 24 px: the arc
+    tangled with the drives above it and read as a ribbon. Duplication plus a
+    tick says the same thing with far fewer pixels.
+    """
+    p = Pad()
+    light = tuple(min(255, int(v * 1.4)) for v in MAL[:3]) + (255,)
+    # lower drive, then the upper one offset up-left so the stack reads as depth
+    for x0, y0 in ((5, 14), (2, 7)):
+        p.rect(x0, y0, x0 + 15, y0 + 6, MAL)
+        p.frame(x0, y0, x0 + 15, y0 + 6, K)
+        p.run(y0 + 1, x0 + 1, x0 + 14, light)       # lit top edge
+        p.rect(x0 + 2, y0 + 3, x0 + 6, y0 + 5, GL)  # label patch
+        p.dot(x0 + 13, y0 + 4, GRN)                 # activity light
+    # tick badge, clear of both drives in the top-right corner
+    p.ellipse(13, 0, 23, 10, GRN, outline=K)
+    p.line([(15, 5), (17, 8)], WT)
+    p.line([(16, 5), (18, 8)], WT)
+    p.line([(17, 8), (21, 2)], WT)
+    p.line([(18, 8), (22, 2)], WT)
+    return p.im
+
+
+def icon_password_manager():
+    """A safe: dial, handle and a row of dots standing in for the passwords."""
+    p = Pad()
+    light = tuple(min(255, int(v * 1.35)) for v in SOC[:3]) + (255,)
+    p.rect(2, 2, 21, 21, SOC)
+    p.frame(2, 2, 21, 21, K)
+    p.rect(4, 4, 19, 19, DK)          # recessed door
+    p.frame(4, 4, 19, 19, K)
+    p.run(4, 5, 18, light)            # door catches the light along the top
+    # combination dial, off to the left so the handle has room
+    p.ellipse(6, 8, 14, 16, LT, outline=K)
+    p.ellipse(8, 10, 12, 14, MD)
+    p.line([(10, 9), (10, 11)], K)
+    # handle
+    p.rect(16, 10, 17, 14, LT)
+    p.frame(16, 10, 17, 14, K)
+    p.run(12, 15, 18, LT)
+    # stored secrets, as a row of dots along the bottom
+    for x in range(7, 17, 3):
+        p.rect(x, 17, x + 1, 18, YEL)
+    return p.im
+
 def icon_reboot():
     """Power symbol: a broken ring with a bar through the gap."""
     p = Pad()
@@ -282,8 +329,10 @@ ICONS = {
     "param_queries": icon_sql,
     "edr": icon_edr,
     "antivirus": icon_antivirus,
+    "backup": icon_backup,
     "httponly_cookies": icon_cookies,
     "mfa": icon_mfa,
+    "password_manager": icon_password_manager,
     "ids": icon_ids,
     "patch": icon_patch,
     "reboot": icon_reboot,

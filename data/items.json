@@ -4,98 +4,291 @@
     "name": "FIREWALL",
     "shortName": "Firewall",
     "plainDesc": "Не пускает чужаков в твою сеть",
+    "longDesc": "Стоит на границе сети и решает, какое соединение пропустить, а какое оборвать. Всё, что не разрешено явно, — закрыто, поэтому снаружи не видно ни открытых портов, ни сервисов, ни пути внутрь.",
+    "limits": "Не видит того, что уже происходит внутри машины, и не разбирает содержимое трафика, который сам же и разрешил.",
     "cat": "network",
     "maxUses": 2,
-    "hardCounterFor": ["worm_bruteforce", "worm_spread", "worm_botnet", "worm_ddos", "trojan_backdoor"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "worm_bruteforce",
+      "worm_spread",
+      "worm_botnet",
+      "worm_ddos",
+      "trojan_backdoor",
+      "trojan_rat",
+      "malware_botnet",
+      "zero_lateral"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "waf": {
     "id": "waf",
     "name": "WAF",
     "shortName": "WAF",
     "plainDesc": "Проверяет запросы к сайту, отсекает вредоносные",
+    "longDesc": "Фильтр, стоящий перед веб-приложением: читает каждый запрос к сайту и отбрасывает те, что похожи на атаку — подставленные скрипты, чужие команды, попытки залить исполняемый файл.",
+    "limits": "Работает только с веб-трафиком. Файлы на диске, почта и внутренняя сеть — не его участок.",
     "cat": "web",
     "maxUses": 2,
-    "hardCounterFor": ["phish_xss", "phish_csrf"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "phish_xss",
+      "phish_csrf",
+      "zero_upload"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "param_queries": {
     "id": "param_queries",
     "name": "ПАРАМЕТРИЗАЦИЯ ЗАПРОСОВ",
     "shortName": "SQL-фильтр",
     "plainDesc": "Не даёт подставить вредоносный код в запрос к базе",
+    "longDesc": "Запрос к базе собирается не склейкой строк, а с отдельными ячейками под данные. Что бы человек ни ввёл в форму, оно уедет в базу как обычный текст и никогда не выполнится как команда.",
+    "limits": "Самый узкий инструмент в наборе: закрывает только запросы к базе данных, всё остальное проходит мимо.",
     "cat": "web",
     "maxUses": 2,
-    "hardCounterFor": ["zero_privesc"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "zero_inject",
+      "phish_sqli"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "edr": {
     "id": "edr",
     "name": "EDR",
     "shortName": "EDR",
     "plainDesc": "Следит за подозрительным поведением программ",
+    "longDesc": "Не ищет знакомые вирусы, а смотрит, что программы делают: лезут в автозагрузку, читают чужую память, стирают резервные копии, снимают экран. Поэтому ловит и то, чего ещё нет ни в одной базе.",
+    "limits": "Живёт на твоём компьютере. Чужой сервер, роутер или телефон он не видит.",
     "cat": "malware",
     "maxUses": 2,
-    "hardCounterFor": ["malware_persist", "malware_keylogger", "malware_exfil", "trojan_disable", "trojan_takeover", "zero_persist"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "malware_persist",
+      "malware_keylogger",
+      "malware_exfil",
+      "malware_clipboard",
+      "malware_backup",
+      "trojan_disable",
+      "trojan_takeover",
+      "trojan_spy",
+      "zero_persist",
+      "zero_logs",
+      "worm_mining"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "antivirus": {
     "id": "antivirus",
     "name": "АНТИВИРУС",
     "shortName": "Антивирус",
     "plainDesc": "Находит и удаляет известные вирусы",
+    "longDesc": "Сверяет файлы на диске с базой уже разобранных образцов и вычищает совпадения. Против того, что известно и описано, — самое быстрое и надёжное средство в наборе.",
+    "limits": "Узнаёт только знакомое. Новый или переписанный под заказ вредонос в базе ещё не значится.",
     "cat": "malware",
     "maxUses": 2,
-    "hardCounterFor": ["malware_dropper", "malware_spread", "malware_ransom", "trojan_run", "trojan_takeover"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "malware_dropper",
+      "malware_spread",
+      "malware_ransom",
+      "trojan_run",
+      "trojan_takeover",
+      "trojan_usb",
+      "phish_attachment"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
+  },
+  "backup": {
+    "id": "backup",
+    "name": "РЕЗЕРВНЫЕ КОПИИ",
+    "shortName": "Бэкап",
+    "plainDesc": "Отдельная копия данных, до которой атака не дотянется",
+    "longDesc": "Копия важных файлов на носителе, который не подключён к машине постоянно. Саму атаку она не останавливает — она обесценивает её результат: испорченное разворачивают заново из чистой копии.",
+    "limits": "От кражи не спасает: утёкшие данные останутся у похитителя, сколько копий ни держи. А копия, подключённая к машине всё время, шифруется вместе с оригиналом.",
+    "cat": "malware",
+    "maxUses": 2,
+    "hardCounterFor": [
+      "malware_ransom",
+      "malware_backup",
+      "trojan_supplychain"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "httponly_cookies": {
     "id": "httponly_cookies",
     "name": "HTTPONLY / SECURE COOKIES",
     "shortName": "Cookie-защита",
     "plainDesc": "Не даёт угнать твою сессию входа",
+    "longDesc": "Два флага на печеньке сессии. HttpOnly прячет её от скриптов на странице, Secure запрещает отправлять её по незашифрованному каналу. Украсть «пропуск», по которому сайт тебя узнаёт, становится нечем.",
+    "limits": "Бережёт только уже выданную сессию. Если пароль выманят напрямую, флаги не помогут.",
     "cat": "social",
     "maxUses": 2,
-    "hardCounterFor": ["phish_cookie", "phish_takeover"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "phish_cookie",
+      "phish_takeover",
+      "trojan_cookie"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "mfa": {
     "id": "mfa",
     "name": "MFA / 2FA",
     "shortName": "2FA",
     "plainDesc": "Код из телефона — даже зная пароль, не войдут",
+    "longDesc": "Второй фактор в дополнение к паролю: код из приложения, СМС или аппаратный ключ. Украденного пароля становится мало — нужен ещё и предмет, который лежит у тебя в кармане.",
+    "limits": "Не спасает, если код продиктовать самому по телефону или если во вход уже зашли до тебя.",
     "cat": "social",
     "maxUses": 2,
-    "hardCounterFor": ["phish_fakepage", "phish_takeover", "trojan_exfil"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 40 },
-    "counterDamage": { "hard": 22, "normal": 12, "weak": 5 }
+    "hardCounterFor": [
+      "phish_fakepage",
+      "phish_takeover",
+      "phish_recovery",
+      "trojan_exfil"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
+  },
+  "password_manager": {
+    "id": "password_manager",
+    "name": "МЕНЕДЖЕР ПАРОЛЕЙ",
+    "shortName": "Менеджер паролей",
+    "plainDesc": "Длинный уникальный пароль на каждый сайт, и подставляет их он сам",
+    "longDesc": "Держит пароли в зашифрованном сейфе и подставляет их только на том домене, для которого пароль заведён. Подбирать нечего, переиспользовать нечего, а на поддельной странице поле входа так и останется пустым.",
+    "limits": "Всё держится на одном мастер-пароле. И он никак не мешает продиктовать пароль или код вслух по телефону.",
+    "cat": "social",
+    "maxUses": 2,
+    "hardCounterFor": [
+      "worm_bruteforce",
+      "worm_dns",
+      "phish_fakepage",
+      "trojan_exfil"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 40
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 12,
+      "weak": 5
+    }
   },
   "ids": {
     "id": "ids",
     "name": "IDS",
     "shortName": "IDS",
     "plainDesc": "Замечает подозрительное, но не блокирует само",
+    "longDesc": "Система обнаружения вторжений разбирает происходящее и поднимает тревогу на всё необычное. Работает против атаки любого типа — но именно замечает: решение принимает человек по ту сторону экрана.",
+    "limits": "Сама ничего не останавливает. Без дежурного, который прочитает тревогу, это просто строчка в журнале.",
     "cat": "universal",
     "maxUses": 3,
     "hardCounterFor": [],
-    "blockPercent": { "hard": 100, "normal": 55, "weak": 35 },
-    "counterDamage": { "hard": 22, "normal": 13, "weak": 6 }
+    "blockPercent": {
+      "hard": 100,
+      "normal": 55,
+      "weak": 35
+    },
+    "counterDamage": {
+      "hard": 22,
+      "normal": 13,
+      "weak": 6
+    }
   },
   "patch": {
     "id": "patch",
     "name": "ПАТЧ / ОБНОВЛЕНИЕ",
     "shortName": "Патч",
     "plainDesc": "Закрывает конкретную дыру в программе",
+    "longDesc": "Обновление от разработчика, которое чинит саму ошибку в коде. Единственное средство, которое убирает уязвимость насовсем, а не прикрывает её чем-то сверху.",
+    "limits": "Один на весь бой, и его нужно дождаться: пока патч не вышел — дыра открыта для всех.",
     "cat": "zeroday",
     "maxUses": 1,
-    "hardCounterFor": ["zero_probe", "zero_bypass", "zero_rce"],
-    "blockPercent": { "hard": 100, "normal": 65, "weak": 30 },
-    "counterDamage": { "hard": 26, "normal": 14, "weak": 6 }
+    "hardCounterFor": [
+      "zero_probe",
+      "zero_bypass",
+      "zero_rce",
+      "worm_cve",
+      "worm_firmware",
+      "malware_updates"
+    ],
+    "blockPercent": {
+      "hard": 100,
+      "normal": 65,
+      "weak": 30
+    },
+    "counterDamage": {
+      "hard": 26,
+      "normal": 14,
+      "weak": 6
+    }
   }
 }

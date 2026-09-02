@@ -15,7 +15,11 @@
       { "id": "worm_cve", "name": "Использует старую дыру в прошивке роутера", "techName": "Эксплойт известной CVE", "cat": "network", "dmg": [12, 16], "effect": null },
       { "id": "worm_spread", "name": "Расползается на другие устройства в сети", "techName": "Латеральное перемещение", "cat": "network", "dmg": [13, 17], "effect": null },
       { "id": "worm_botnet", "name": "Тихо встраивает роутер в чужой ботнет", "techName": "Встраивание в ботнет", "cat": "network", "dmg": [15, 19], "effect": null },
-      { "id": "worm_ddos", "name": "Обрушивает DDoS-атаку всем ботнетом разом", "techName": "DDoS через ботнет", "cat": "network", "dmg": [18, 24], "effect": null }
+      { "id": "worm_dns", "name": "Подменяет в роутере адреса сайтов на свои", "techName": "Подмена DNS", "cat": "network", "dmg": [16, 20], "effect": null },
+      { "id": "worm_arp", "name": "Притворяется роутером и пропускает твой трафик через себя", "techName": "ARP-спуфинг (человек посередине)", "cat": "network", "dmg": [17, 21], "effect": null },
+      { "id": "worm_mining", "name": "Запускает майнер на всех захваченных устройствах", "techName": "Скрытый криптомайнинг", "cat": "malware", "dmg": [18, 22], "effect": null },
+      { "id": "worm_firmware", "name": "Перепрошивает роутер, чтобы пережить сброс к заводским", "techName": "Закрепление в прошивке", "cat": "network", "dmg": [19, 23], "effect": null },
+      { "id": "worm_ddos", "name": "Обрушивает DDoS-атаку всем ботнетом разом", "techName": "DDoS через ботнет", "cat": "network", "dmg": [21, 27], "effect": null }
     ]
   },
   "malware": {
@@ -34,7 +38,11 @@
       { "id": "malware_keylogger", "name": "Записывает всё, что ты печатаешь, включая пароли", "techName": "Кейлоггер", "cat": "malware", "dmg": [10, 14], "effect": { "type": "dot", "duration": 1 } },
       { "id": "malware_spread", "name": "Копирует себя на флешку и в облачную папку", "techName": "Самокопирование", "cat": "malware", "dmg": [13, 17], "effect": null },
       { "id": "malware_exfil", "name": "Тихо отправляет твои файлы на чужой сервер", "techName": "Эксфильтрация данных", "cat": "malware", "dmg": [15, 19], "effect": null },
-      { "id": "malware_ransom", "name": "Шифрует все твои файлы и требует выкуп", "techName": "Шифровальщик (ransomware)", "cat": "malware", "dmg": [20, 26], "effect": null }
+      { "id": "malware_updates", "name": "Отключает обновления системы, чтобы старые дыры остались открытыми", "techName": "Саботаж обновлений", "cat": "malware", "dmg": [16, 20], "effect": null },
+      { "id": "malware_clipboard", "name": "Подменяет скопированный номер карты на чужой", "techName": "Клиппер (подмена буфера обмена)", "cat": "malware", "dmg": [17, 21], "effect": null },
+      { "id": "malware_botnet", "name": "Сдаёт твой компьютер в аренду как прокси для чужих атак", "techName": "Прокси-ботнет", "cat": "network", "dmg": [18, 22], "effect": null },
+      { "id": "malware_backup", "name": "Стирает точки восстановления и все резервные копии", "techName": "Уничтожение резервных копий", "cat": "malware", "dmg": [19, 23], "effect": null },
+      { "id": "malware_ransom", "name": "Шифрует все твои файлы и требует выкуп", "techName": "Шифровальщик (ransomware)", "cat": "malware", "dmg": [21, 27], "effect": null }
     ]
   },
   "trojan": {
@@ -51,9 +59,13 @@
       { "id": "trojan_run", "name": "Запускается под видом видео с котятами", "techName": "Маскировка под медиафайл", "cat": "malware", "dmg": [8, 12], "effect": null },
       { "id": "trojan_disable", "name": "Пытается отключить твой антивирус", "techName": "Отключение защиты", "cat": "malware", "dmg": [11, 15], "effect": { "type": "debuff_defense_mult", "mult": 0.7, "duration": 1 } },
       { "id": "trojan_backdoor", "name": "Открывает скрытый канал связи с хакером", "techName": "Бэкдор-канал управления (C2)", "cat": "network", "dmg": [13, 17], "effect": { "type": "debuff_disable_item", "duration": 1 } },
-      { "id": "trojan_supplychain", "name": "Подменяет файлы других программ на компьютере", "techName": "Компрометация цепочки поставок", "cat": "web", "dmg": [16, 20], "effect": { "type": "armor_pierce", "ignoreFraction": 0.35 } },
+      { "id": "trojan_supplychain", "name": "Подменяет файлы других программ на компьютере", "techName": "Компрометация цепочки поставок", "cat": "malware", "dmg": [16, 20], "effect": { "type": "armor_pierce", "ignoreFraction": 0.35 } },
       { "id": "trojan_exfil", "name": "Ворует сохранённые пароли из браузера", "techName": "Кража учётных данных", "cat": "social", "dmg": [17, 21], "effect": null },
-      { "id": "trojan_takeover", "name": "Захватывает систему и открывает хакеру полный доступ", "techName": "Полный компромисс", "cat": "malware", "dmg": [20, 26], "effect": null }
+      { "id": "trojan_spy", "name": "Тайком снимает экран и включает камеру", "techName": "Шпионский модуль (слежка)", "cat": "malware", "dmg": [18, 22], "effect": null },
+      { "id": "trojan_usb", "name": "Копирует себя на все флешки, которые ты втыкаешь", "techName": "Распространение через съёмные носители", "cat": "malware", "dmg": [18, 23], "effect": null },
+      { "id": "trojan_rat", "name": "Открывает хакеру твой рабочий стол", "techName": "Удалённое управление (RAT)", "cat": "network", "dmg": [19, 24], "effect": null },
+      { "id": "trojan_cookie", "name": "Крадёт cookie сессий, чтобы входить в аккаунты вообще без пароля", "techName": "Кража сессионных cookie", "cat": "social", "dmg": [20, 25], "effect": null },
+      { "id": "trojan_takeover", "name": "Захватывает систему и открывает хакеру полный доступ", "techName": "Полный компромисс", "cat": "malware", "dmg": [22, 28], "effect": null }
     ]
   },
   "phishing": {
@@ -72,7 +84,11 @@
       { "id": "phish_cookie", "name": "Ворует cookie твоей сессии через поддельную страницу", "techName": "Угон сессии", "cat": "social", "dmg": [12, 16], "effect": null },
       { "id": "phish_xss", "name": "Внедряет вредоносный скрипт на взломанную страницу вуза", "techName": "XSS-атака", "cat": "web", "dmg": [14, 18], "effect": null },
       { "id": "phish_csrf", "name": "Заставляет твой браузер выполнить чужой запрос без спроса", "techName": "CSRF-атака", "cat": "web", "dmg": [16, 20], "effect": null },
-      { "id": "phish_takeover", "name": "Получает полный доступ к твоему личному кабинету", "techName": "Захват аккаунта", "cat": "social", "dmg": [19, 25], "effect": null }
+      { "id": "phish_attachment", "name": "Прикладывает к письму «ведомость.xlsx» с вредоносным макросом", "techName": "Вложение с макросом", "cat": "malware", "dmg": [17, 21], "effect": null },
+      { "id": "phish_otp", "name": "Звонит «из техподдержки» и просит продиктовать код из СМС", "techName": "Выманивание одноразового кода (вишинг)", "cat": "social", "dmg": [17, 22], "effect": null },
+      { "id": "phish_sqli", "name": "Через форму поиска на сайте вуза вытягивает список логинов", "techName": "SQL-инъекция в поиске", "cat": "web", "dmg": [18, 23], "effect": null },
+      { "id": "phish_recovery", "name": "Перехватывает восстановление доступа через «забыли пароль»", "techName": "Захват через сброс пароля", "cat": "social", "dmg": [19, 24], "effect": null },
+      { "id": "phish_takeover", "name": "Получает полный доступ к твоему личному кабинету", "techName": "Захват аккаунта", "cat": "social", "dmg": [21, 27], "effect": null }
     ]
   },
   "zeroday": {
@@ -88,10 +104,14 @@
     "scenarios": [
       { "id": "zero_probe", "name": "Нащупывает неизвестную дыру в системе лабораторных", "techName": "Неизвестная точка входа", "cat": "zeroday", "dmg": [12, 16], "effect": null },
       { "id": "zero_bypass", "name": "Обходит все стандартные проверки безопасности", "techName": "Обход защиты", "cat": "zeroday", "dmg": [14, 18], "effect": { "type": "debuff_items_mult_except_patch", "mult": 0.5, "exceptItem": "patch", "duration": "restOfFight" } },
-      { "id": "zero_inject", "name": "Подставляет вредоносный код в запрос к базе вуза", "techName": "SQL-инъекция", "cat": "web", "dmg": [16, 20], "effect": { "type": "armor_pierce", "ignoreFraction": 0.5 } },
-      { "id": "zero_privesc", "name": "Повышает свои права до администратора базы", "techName": "Эскалация привилегий", "cat": "web", "dmg": [17, 21], "effect": null },
+      { "id": "zero_inject", "name": "Подставляет вредоносный код в запрос к базе вуза", "techName": "SQL-инъекция", "cat": "web", "dmg": [16, 20], "effect": null },
+      { "id": "zero_privesc", "name": "Повышает свои права до администратора базы", "techName": "Эскалация привилегий", "cat": "web", "dmg": [17, 21], "effect": { "type": "armor_pierce", "ignoreFraction": 0.5 } },
       { "id": "zero_persist", "name": "Закрепляется в системе так, что стандартные проверки его не видят", "techName": "Скрытое закрепление", "cat": "malware", "dmg": [19, 23], "effect": null },
-      { "id": "zero_rce", "name": "Выполняет любой код на сервере — полный компромисс", "techName": "RCE-цепочка", "cat": "zeroday", "dmg": [22, 28], "effect": null }
+      { "id": "zero_upload", "name": "Заливает на сайт вуза файл, который сервер соглашается выполнить", "techName": "Веб-шелл", "cat": "web", "dmg": [19, 24], "effect": null },
+      { "id": "zero_lateral", "name": "С сервера лабораторных перебирается на сервер с ведомостями", "techName": "Латеральное перемещение по сети вуза", "cat": "network", "dmg": [20, 25], "effect": null },
+      { "id": "zero_logs", "name": "Затирает журналы, чтобы никто не понял, что произошло", "techName": "Уничтожение следов", "cat": "malware", "dmg": [20, 26], "effect": null },
+      { "id": "zero_exfil", "name": "Выгружает базу студентов на сторонний сервер", "techName": "Массовая утечка данных", "cat": "network", "dmg": [21, 27], "effect": null },
+      { "id": "zero_rce", "name": "Выполняет любой код на сервере — полный компромисс", "techName": "RCE-цепочка", "cat": "zeroday", "dmg": [24, 30], "effect": null }
     ]
   }
 }

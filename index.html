@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-store">
 <title>ОБЫЧНЫЙ ДЕНЬ ИБШНИКА</title>
 <link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="src/style.css?v=15">
+<link rel="stylesheet" href="src/style.css?v=23">
 </head>
 <body>
 <div id="app">
@@ -41,9 +41,9 @@
 
   <div id="legend">
     <div class="legend-item" data-cat="network"><span class="dot"></span>сеть — Firewall</div>
-    <div class="legend-item" data-cat="malware"><span class="dot"></span>вредонос — EDR, Антивирус</div>
+    <div class="legend-item" data-cat="malware"><span class="dot"></span>вредонос — EDR, Антивирус, Бэкап</div>
     <div class="legend-item" data-cat="web"><span class="dot"></span>веб/сайт — WAF, SQL-фильтр</div>
-    <div class="legend-item" data-cat="social"><span class="dot"></span>обман — 2FA, Cookie-защита</div>
+    <div class="legend-item" data-cat="social"><span class="dot"></span>обман — 2FA, Cookie-защита, Менеджер паролей</div>
     <div class="legend-item" data-cat="zeroday"><span class="dot"></span>0-day — Патч</div>
   </div>
 
@@ -90,8 +90,17 @@
 
   <div id="inventoryPanel" class="hidden">
     <div id="itemGrid"></div>
-    <div id="selectedRow">
-      <span id="selectedItemName">выбери, чем защититься</span>
+    <div id="itemCard" class="empty">
+      <img id="itemCardIcon" class="hidden" src="" alt="">
+      <div id="itemCardBody">
+        <div id="itemCardHead">
+          <span id="itemCardName">выбери, чем защититься</span>
+          <span id="itemCardCat"></span>
+          <span id="itemCardUses"></span>
+        </div>
+        <div id="itemCardDesc">Наведи мышь или пройдись крестовиной по слотам — здесь появится, что делает инструмент и против чего он силён.</div>
+        <div id="itemCardLimits"></div>
+      </div>
     </div>
     <div id="actionRow">
       <button id="useBtn" class="action-btn action-primary" disabled>
@@ -144,10 +153,10 @@
 
 </div>
 
-<script src="src/core.js?v=15"></script>
-<script src="src/background.js?v=15"></script>
-<script src="src/audio.js?v=15"></script>
-<script src="src/gamepad.js?v=15"></script>
-<script src="src/ui.js?v=15"></script>
+<script src="src/core.js?v=23"></script>
+<script src="src/background.js?v=23"></script>
+<script src="src/audio.js?v=23"></script>
+<script src="src/gamepad.js?v=23"></script>
+<script src="src/ui.js?v=23"></script>
 </body>
 </html>

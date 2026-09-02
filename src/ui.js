@@ -30,6 +30,7 @@
     web: "веб/сайт",
     social: "обман",
     zeroday: "0-day",
+    universal: "любые",
   };
 
   const FORCE_MAJEURE_LINES = [
@@ -44,6 +45,8 @@
     "разберём, как строятся такие эшелоны на практике.";
 
   const el = (id) => document.getElementById(id);
+  /** gamepad.js stamps this on <html> while a pad is connected. */
+  const padConnected = () => document.documentElement.classList.contains("gamepad-on");
   const dom = {
     menuScreen: el("menuScreen"),
     menuBgCanvas: el("menuBgCanvas"),
@@ -85,7 +88,13 @@
     resultNextBtn: el("resultNextBtn"),
     inventoryPanel: el("inventoryPanel"),
     itemGrid: el("itemGrid"),
-    selectedItemName: el("selectedItemName"),
+    itemCard: el("itemCard"),
+    itemCardIcon: el("itemCardIcon"),
+    itemCardName: el("itemCardName"),
+    itemCardCat: el("itemCardCat"),
+    itemCardUses: el("itemCardUses"),
+    itemCardDesc: el("itemCardDesc"),
+    itemCardLimits: el("itemCardLimits"),
     useBtn: el("useBtn"),
     useIcon: el("useIcon"),
     actionRow: el("actionRow"),
@@ -319,8 +328,18 @@
         btn.innerHTML =
           `<img src="assets/img/items/${itemId}.png" alt="${item.shortName}">` +
           `<span class="item-uses">${item.usesLeft}</span>`;
-        btn.addEventListener("click", () => selectItem(itemId));
-        btn.addEventListener("mouseenter", () => previewItem(itemId));
+        // re-clicking the current pick is silent: otherwise the first half of a
+        // double-click beeps twice before the throw
+        btn.addEventListener("click", () => selectItem(itemId, itemId === selectedItemId));
+        // double-click is the shortcut for "pick it and press ИСПОЛЬЗОВАТЬ"
+        btn.addEventListener("dblclick", () => {
+          selectItem(itemId, true);
+          if (!dom.useBtn.disabled) dom.useBtn.click();
+        });
+        btn.addEventListener("mouseenter", () => showItemCard(itemId));
+        // the gamepad moves its highlight with focus(), so this one listener
+        // serves the stick and the Tab key both
+        btn.addEventListener("focus", () => showItemCard(itemId));
         dom.itemGrid.appendChild(btn);
         itemCells.push(btn);
       }
@@ -328,7 +347,7 @@
       dom.useBtn.disabled = true;
       dom.useIcon.classList.add("hidden");
       dom.useIcon.removeAttribute("src");
-      dom.selectedItemName.textContent = "выбери, чем защититься";
+      showItemCard(null);
       clearHeldItem();
       clearHint(); // a hint belongs to the attack that prompted it, not the next one
       focusedIndex = itemCells.findIndex((c) => !c.disabled);
@@ -398,17 +417,55 @@
       dom.heldItem.removeAttribute("src");
     }
 
-    function previewItem(itemId) {
-      if (selectedItemId) return;
-      const item = fight.itemDefs[itemId];
-      dom.selectedItemName.textContent = `${item.shortName} — ${item.plainDesc}`;
+    const CARD_EMPTY_TEXT =
+      "Наведи мышь или пройдись крестовиной по слотам — здесь появится, что делает инструмент и против чего он силён.";
+
+    /**
+     * Fills the card under the inventory with everything known about one tool.
+     * `null` puts it back into the "nothing under the cursor yet" state.
+     *
+     * Deliberately says what the tool is and where it stops, never which of
+     * this boss's attacks it happens to answer: that would hand the player the
+     * turn's solution before they have thought about it. The ПОДСКАЗКА button
+     * is where an answer is asked for on purpose.
+     */
+    function showItemCard(itemId) {
+      const item = itemId ? fight.itemDefs[itemId] : null;
+      if (!item) {
+        dom.itemCard.classList.add("empty");
+        dom.itemCardIcon.classList.add("hidden");
+        dom.itemCardIcon.removeAttribute("src");
+        dom.itemCardName.textContent = "выбери, чем защититься";
+        dom.itemCardCat.textContent = "";
+        dom.itemCardCat.className = "";
+        dom.itemCardUses.textContent = "";
+        dom.itemCardDesc.textContent = CARD_EMPTY_TEXT;
+        dom.itemCardLimits.textContent = "";
+        return;
+      }
+      dom.itemCard.classList.remove("empty");
+      dom.itemCardIcon.src = `assets/img/items/${item.id}.png`;
+      dom.itemCardIcon.classList.remove("hidden");
+      dom.itemCardName.textContent = item.shortName;
+      dom.itemCardCat.textContent = CAT_LABEL[item.cat] || item.cat;
+      dom.itemCardCat.className = `cat-${item.cat}`;
+      dom.itemCardUses.textContent =
+        item.usesLeft > 0 ? `осталось ${item.usesLeft} из ${item.maxUses}` : "израсходован";
+      dom.itemCardDesc.textContent = `${item.plainDesc}. ${item.longDesc}`;
+      dom.itemCardLimits.textContent = item.limits;
+    }
+
+    /** Item the card falls back to when the cursor leaves the row. */
+    function restingCardItem() {
+      if (selectedItemId) return selectedItemId;
+      const focused = itemCells[focusedIndex];
+      return focused ? focused.dataset.itemId : null;
     }
 
     function updateFocusVisuals() {
       itemCells.forEach((c, i) => c.classList.toggle("focused", i === focusedIndex));
-      if (!selectedItemId && focusedIndex >= 0) {
-        const item = fight.itemDefs[itemCells[focusedIndex].dataset.itemId];
-        dom.selectedItemName.textContent = `${item.shortName} — ${item.plainDesc}`;
+      if (focusedIndex >= 0 && itemCells[focusedIndex]) {
+        showItemCard(itemCells[focusedIndex].dataset.itemId);
       }
     }
 
@@ -418,8 +475,7 @@
       if (!silent) IBFighterAudio.select();
       selectedItemId = itemId;
       itemCells.forEach((c) => c.classList.toggle("selected", c.dataset.itemId === itemId));
-      const item = fight.itemDefs[itemId];
-      dom.selectedItemName.textContent = `${item.shortName} — ${item.plainDesc}`;
+      showItemCard(itemId);
       // browsing is allowed between turns, but the throw itself only once the
       // attack is on screen — otherwise you would be answering it blind
       dom.useBtn.disabled = !canAct;
@@ -448,9 +504,39 @@
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         selectItem(itemCells[focusedIndex].dataset.itemId);
+        // ИСПОЛЬЗОВАТЬ is hidden while a pad is plugged in, so Enter has to
+        // carry the throw too — otherwise the keyboard has no way to act.
+        if (padConnected() && !dom.useBtn.disabled) dom.useBtn.click();
       }
     }
     document.addEventListener("keydown", onKeydown);
+
+    // the grid element itself survives every rebuild, so one listener is enough:
+    // leaving the row puts the card back on whatever is picked or focused
+    dom.itemGrid.addEventListener("mouseleave", () => showItemCard(restingCardItem()));
+
+    // The gamepad moves its highlight by adding .gp-focus and calling focus().
+    // Watching the class rather than the focus event on purpose: a browser only
+    // fires focus events while the document itself is focused, so after a click
+    // on the browser chrome the stick would still move the highlight and the
+    // card would silently stop following it.
+    let lastStickItem = null;
+    new MutationObserver(() => {
+      const lit = dom.itemGrid.querySelector(".slot.gp-focus");
+      const id = lit ? lit.dataset.itemId : null;
+      // Only an actual stick move counts. The observer also fires on the
+      // .focused and .selected classes, and without this guard a mouse click
+      // would show the clicked tool for an instant before the highlight the
+      // stick was parked on stole the card back.
+      if (id === lastStickItem) return;
+      lastStickItem = id;
+      if (!id) return;
+      // With a pad the highlight *is* the pick: the tool goes into the fighter's
+      // hands as the stick passes over it, and A throws it. Without one, moving
+      // the highlight only previews — mouse and keyboard still pick explicitly.
+      if (padConnected()) selectItem(id, true);
+      else showItemCard(id);
+    }).observe(dom.itemGrid, { attributes: true, attributeFilter: ["class"], subtree: true });
 
     async function playAttackIntro(scenario) {
       dom.attackBanner.classList.remove("hidden");
@@ -477,7 +563,13 @@
     function openChoiceWindow(scenario) {
       canAct = true;
       dom.inventoryPanel.classList.remove("locked");
-      buildItemGrid();
+      // Deliberately no buildItemGrid() here. playResolve already rebuilt the
+      // grid with this turn's counts and disabled item, and browsing is open
+      // from that moment — through the result window and the attack animation.
+      // Rebuilding again at the moment the turn opens replaced every slot
+      // element, which yanked the highlight back to the first slot a second or
+      // two after the boss struck, right out from under whoever had already
+      // moved it.
       // a pick carried over from the previous turn is ready to throw at once
       dom.useBtn.disabled = !selectedItemId;
       dom.hintBtn.onclick = () => {
